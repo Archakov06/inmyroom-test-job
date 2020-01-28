@@ -1,7 +1,6 @@
 import React from 'react';
 
-import { Product } from './components';
-import { IProductProps } from './components/Product';
+import Product, { IProductProps } from './components/Product';
 
 let products: IProductProps[] = Array(30)
   .fill(0)

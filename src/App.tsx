@@ -1,7 +1,9 @@
 import React from 'react';
+import debounce from 'lodash/debounce';
 
 import Product, { IProductProps } from './components/Product';
 
+// Генерируем набор тестовых товаров, чтобы не вбивать руками
 let products: IProductProps[] = Array(30)
   .fill(0)
   .map(() => ({
@@ -20,27 +22,46 @@ let products: IProductProps[] = Array(30)
   }));
 
 const App: React.FC = () => {
+  // Максимальное отображение товаров
   const [maxCount, setMaxCount] = React.useState<number>(5);
-  const wrapperRef = React.useRef<HTMLDivElement>(null);
-  const onScroll = React.useCallback((e: any) => {
-    if (e.target) {
-      const isEnd = e.target.scrollWidth - e.target.scrollLeft - 250 <= e.target.clientWidth;
-      if (isEnd) {
-        setMaxCount(count => count + 1);
-      }
-    }
-  }, []);
 
+  // Ссылка на DOM-элемент блока wrapper
+  const wrapperRef = React.useRef<HTMLDivElement>(null);
+
+  // Объявляем функцию для отслеживания скролла.
+  // Обязательно сохраняем одну и ту же ссылку у onScroll, чтобы позже удалить слушатель.
+  // Для этого используем useCallback
+  const onScroll = React.useCallback(
+    debounce((e: any) => {
+      console.log('scroll');
+      if (e.target) {
+        const isEnd = e.target.scrollWidth - e.target.scrollLeft - 250 <= e.target.clientWidth;
+        if (isEnd) {
+          // Если дошли до конца, показываем 1 новый товар
+          setMaxCount(count => count + 1);
+        }
+      }
+    }, 50),
+    [],
+  );
+
+  // Следим за изменениями переменных maxCount, onScroll.
+  // Если макс. отображаемых товаров >= кол-во товаров
+  // Удаляем слушатель скролла у основного блока wrapper
   React.useEffect(() => {
     if (wrapperRef.current && maxCount >= products.length) {
       wrapperRef.current.removeEventListener('scroll', onScroll);
     }
   }, [maxCount, onScroll]);
 
+  // Устанавливаем слушатель скролла на блок wrapper
+  // И очищаем, если произошло демонтирование компонента App
   React.useEffect(() => {
-    if (wrapperRef.current) {
-      wrapperRef.current.addEventListener('scroll', onScroll);
-    }
+    const { current } = wrapperRef;
+    current?.addEventListener('scroll', onScroll);
+    return () => {
+      current?.removeEventListener('scroll', onScroll);
+    };
   }, [onScroll]);
 
   return (

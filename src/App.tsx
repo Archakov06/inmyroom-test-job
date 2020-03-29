@@ -32,7 +32,7 @@ const App: React.FC = () => {
   // Обязательно сохраняем одну и ту же ссылку у onScroll, чтобы позже удалить слушатель.
   // Для этого используем useCallback
   // ###############
-  // UPD 29.03.2020: В случае с событием scroll, лучше использовать throttle, вместо debounce. Отдельно спасибо Alexander Kim.
+  // UPD 29.03.2020: В случае с событием scroll, лучше использовать throttle, вместо debounce. Отдельное спасибо Alexander Kim.
   // Сравнить throttle и debounce можно тут http://emn178.github.io/js-throttle-debounce/samples/demo/
   const onScroll = React.useCallback(
     debounce((e: any) => {
